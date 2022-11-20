@@ -1,0 +1,107 @@
+<mat-card class="mat_card_box">
+  <mat-card-content>
+    <div>
+      <h2>Add new language</h2>
+    </div>
+    <div>
+      <form class="form-main" [formGroup]="languageForm">
+        <div>
+          <mat-form-field class="field">
+            <input matInput pattern="^[a-zA-Z0-9_/\- ]+$" minlength="2" placeholder="Name"
+                   maxlength="15" formControlName="name" required>
+            <mat-hint align="end">{{f.name.value?.length || 0}}/15</mat-hint>
+            <mat-error *ngIf="f.name.errors?.minlength || f.name.errors?.maxlength">
+              Length should be at least 2 and no more than 15.
+            </mat-error>
+            <mat-error *ngIf="f.name.errors?.required">
+              Name is required.
+            </mat-error>
+            <mat-error
+              *ngIf="!(f.name.errors?.minlength || f.name.errors?.maxlength) && f.name.errors?.pattern">
+              Not allowed characters.
+            </mat-error>
+          </mat-form-field>
+        </div>
+        <div>
+          <mat-form-field class="field">
+            <input matInput pattern="^[a-zA-Z0-9_/\- ]+$" minlength="2" placeholder="Language shortcut"
+                   maxlength="8" formControlName="languageShortcut" required>
+            <mat-hint align="end">{{f.languageShortcut.value?.length || 0}}/8</mat-hint>
+            <mat-error *ngIf="f.languageShortcut.errors?.minlength || f.languageShortcut.errors?.maxlength">
+              Length should be at least 2 and no more than 8.
+            </mat-error>
+            <mat-error *ngIf="f.languageShortcut.errors?.required">
+              Language shortcut is required.
+            </mat-error>
+            <mat-error
+              *ngIf="!(f.languageShortcut.errors?.minlength || f.languageShortcut.errors?.maxlength) && f.languageShortcut.errors?.pattern">
+              Not allowed characters.
+            </mat-error>
+          </mat-form-field>
+        </div>
+        <div>
+          <mat-form-field class="field">
+            <input matInput pattern="^[a-zA-Z0-9_/\- ]+$" minlength="2" placeholder="Code for translator"
+                   maxlength="8" formControlName="codeForTranslator" matTooltip="Just 'en' has been supported">
+            <mat-hint align="end">{{f.codeForTranslator.value?.length || 0}}/8</mat-hint>
+            <mat-error *ngIf="f.codeForTranslator.errors?.minlength || f.codeForTranslator.errors?.maxlength">
+              Length should be at least 2 and no more than 8.
+            </mat-error>
+            <mat-error
+              *ngIf="!(f.codeForTranslator.errors?.minlength || f.codeForTranslator.errors?.maxlength) && f.codeForTranslator.errors?.pattern">
+              Not allowed characters.
+            </mat-error>
+          </mat-form-field>
+        </div>
+        <div>
+          <mat-form-field class="field">
+            <input matInput pattern="^[a-zA-Z0-9_/\- ]+$" minlength="2" placeholder="Code for speech"
+                   maxlength="8" formControlName="codeForSpeech" matTooltip="Amerykanski: en-US, Brystyjski: en-UK, Niemiecki: de-DE, Francuski: fr-FR, Hiszpanski: es-ES, etc.">
+            <mat-hint align="end">{{f.codeForSpeech.value?.length || 0}}/8</mat-hint>
+            <mat-error *ngIf="f.codeForSpeech.errors?.minlength || f.codeForSpeech.errors?.maxlength">
+              Length should be at least 2 and no more than 8.
+            </mat-error>
+            <mat-error
+              *ngIf="!(f.codeForSpeech.errors?.minlength || f.codeForSpeech.errors?.maxlength) && f.codeForSpeech.errors?.pattern">
+              Not allowed characters.
+            </mat-error>
+          </mat-form-field>
+        </div>
+        <div class="add-language-letters" (click)="addItem()">
+          <mat-icon class="add-special-letter-icon">add_circle_outline</mat-icon>
+          <span class="add-language-letters-desc">Add new special letter</span>
+        </div>
+        <div formArrayName="items"
+             *ngFor="let item of this.f.items.controls; let i = index;">
+          <ng-container [formGroupName]="i">
+            <mat-form-field class="shortFieldInputSpecialLetter">
+              <input matInput formControlName="letter" placeholder="Letter" minlength="1" maxlength="4">
+              <mat-hint align="end">{{item.value.letter.length}}/4</mat-hint>
+            </mat-form-field>
+            <mat-icon class="remove-special-letter-icon" (click)="removeItem(i)">remove_circle_outline</mat-icon>
+          </ng-container>
+        </div>
+      </form>
+      <div>
+        <mat-slide-toggle [(ngModel)]="hidden" color="primary">
+          Hidden? (Not visible to other users)
+        </mat-slide-toggle>
+      </div>
+    </div>
+  </mat-card-content>
+  <div mat-dialog-actions class="cardActions">
+    <button mat-raised-button color="primary" class="clickButton" cdkFocusInitial
+            (click)="add()" [disabled]="this.submitted">Add
+    </button>
+    <mat-progress-spinner
+      *ngIf="this.submitted"
+      class="standardSpinner"
+      [diameter]="20"
+      color="accent"
+      mode="indeterminate">
+    </mat-progress-spinner>
+  </div>
+  <div>
+    <div *ngIf="errorMessage" class="alert">{{errorMessage}}</div>
+  </div>
+</mat-card>

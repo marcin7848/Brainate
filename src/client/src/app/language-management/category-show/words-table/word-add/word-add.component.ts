@@ -1,0 +1,368 @@
+import {Component, Input, OnInit, ViewChild} from '@angular/core';
+import {Language} from "../../../../model/Language";
+import {Category} from "../../../../model/Category";
+import {LanguageService} from "../../../language.service";
+import {Router} from "@angular/router";
+import {Mechanism} from "../../../../model/Mechanism";
+import {Mode} from "../../../../model/Mode";
+import {AppService} from "../../../../app.service";
+import {WordConfig} from "../../../../model/WordConfig";
+import {Word} from "../../../../model/Word";
+import {MatPaginator, MatSort, MatTableDataSource} from "@angular/material";
+import {animate, state, style, transition, trigger} from "@angular/animations";
+
+class WordInput {
+  word: string;
+  basicWord: string;
+  answer: boolean;
+  seat: number;
+
+  constructor(word?:string, basicWord?: string, answer?:boolean, seat?:number) {
+    this.word = word;
+    this.basicWord = basicWord;
+    this.answer = answer;
+    this.seat = seat;
+  }
+
+}
+
+class WordData {
+  id: number;
+  word: ShowWord[];
+  comment: string;
+
+  constructor(id?:number, word?:ShowWord[], comment?:string){
+    this.id = id;
+    this.word = word;
+    this.comment = comment;
+  }
+
+}
+
+class ShowWord {
+  word: string;
+  answer: boolean;
+
+  constructor(word?:string, answer?:boolean){
+    this.word = word;
+    this.answer = answer;
+  }
+}
+
+@Component({
+  selector: 'app-word-add',
+  templateUrl: './word-add.component.html',
+  styleUrls: ['./word-add.component.scss'],
+  animations: [
+    trigger('detailExpand', [
+      state('collapsed', style({height: '0px', minHeight: '0'})),
+      state('expanded', style({height: '*'})),
+      transition('expanded <=> collapsed', animate('225ms cubic-bezier(0.4, 0.0, 0.2, 1)')),
+    ]),
+  ]
+})
+export class WordAddComponent implements OnInit {
+
+  @Input() languageGetter: Language;
+  @Input() categoryGetter: Category;
+
+  language: Language;
+  category: Category;
+
+  Mode = Mode;
+  Mechanism = Mechanism;
+
+  mechanism: Mechanism = Mechanism.BASIC;
+  wordInputs: WordInput[];
+  comment: string = "";
+  showAddWordText: string = "Show add new word";
+  addWordActive: boolean = false;
+
+  displayedColumns: string[] = ['id', 'word', 'comment', 'actions'];
+  dataSource: MatTableDataSource<WordData>;
+  @ViewChild(MatPaginator, {static: true}) paginator: MatPaginator;
+  @ViewChild(MatSort, {static: true}) sort: MatSort;
+  expandedElement: WordData | null;
+  editWordButtonText:string = "Show edit word";
+  editWordShowActive:boolean = false;
+
+  elementCaretPos = null;
+
+  constructor(private languageService: LanguageService,
+              private router: Router,
+              private appService: AppService) {
+
+  }
+
+  ngOnInit() {
+    if(!this.categoryGetter){
+      setTimeout(() => this.ngOnInit(), 1);
+    }
+    else{
+      this.language = Object.assign({}, this.languageGetter);
+      this.category = Object.assign({}, this.categoryGetter);
+      this.category.wordConfigs = this.category.wordConfigs.filter(wc => !wc.accepted);
+      this.wordInputs = [];
+      this.prepareTable();
+    }
+  }
+
+  prepareTable(){
+    this.category.wordConfigs.sort((a,b) => a.id - b.id);
+    this.wordInputs.sort((a,b) => a.seat - b.seat);
+    this.dataSource = new MatTableDataSource(this.createWordTable());
+    this.dataSource.paginator = this.paginator;
+    this.dataSource.sort = this.sort;
+
+  }
+
+  addNewInputWord(answer:boolean){
+    let wordInput = new WordInput("", "", answer, this.wordInputs.length);
+    this.wordInputs.push(wordInput);
+  }
+
+  removeInputWord(index: number){
+    this.wordInputs.splice(index, 1);
+    this.sortSeats();
+  }
+
+  changeSeatInputWord(oldSeat: number, newSeat: number){
+    if(newSeat == -1 || newSeat == this.wordInputs.length){
+      return;
+    }
+
+    this.wordInputs[oldSeat].seat = newSeat;
+    this.wordInputs[newSeat].seat = oldSeat;
+    this.wordInputs.sort((a,b) => a.seat - b.seat);
+  }
+
+  sortSeats(){
+    let i = 0;
+    this.wordInputs.forEach(wi => wi.seat = i++);
+  }
+
+  addWord(){
+    let counterWords = 0;
+    let counterAnswers = 0;
+    let existsBasicAnswers = true;
+    let validateForm = true;
+    this.wordInputs.forEach(wi => {
+      wi.answer ? counterAnswers+=1 : counterWords+=1;
+      if(wi.answer && wi.basicWord.length == 0){
+        existsBasicAnswers = false;
+      }
+      if(wi.word.length == 0){
+        validateForm = false;
+      }
+    });
+    if(counterWords == 0 || counterAnswers == 0){
+      this.appService.openSnackBar("There has to be at least 1 word and 1 answer!");
+      return;
+    }
+
+    if(!validateForm){
+      this.appService.openSnackBar("You need to enter each word and answer!");
+      return;
+    }
+
+    if(!existsBasicAnswers && this.category.mode == Mode.EXERCISE){
+      this.appService.openSnackBar("You need to enter basic word for each answer!");
+      return;
+    }
+
+    let wordConfig : WordConfig = new WordConfig();
+    wordConfig.comment = this.comment;
+    wordConfig.mechanism = this.mechanism;
+    let words : Word[] = [];
+    this.wordInputs.forEach(wi => {
+      let word : Word = new Word(wi.word, wi.basicWord, wi.seat, true, wi.answer);
+      words.push(word);
+    });
+
+    wordConfig.words = words;
+
+    this.languageService.addNewWord(this.language.id, this.category.id, wordConfig).subscribe(
+      data => {
+        this.category.wordConfigs.push(data);
+        this.prepareAddWord();
+
+      },
+      error => {
+        this.appService.openSnackBar(error["error"]["error"]);
+      });
+
+  }
+
+  showAddWord(setToFalse?: boolean){
+    this.addWordActive = setToFalse ? false : !this.addWordActive;
+    if(this.addWordActive){
+      this.showAddWordText = "Hide add new word";
+      this.prepareAddWord();
+      this.showEditWord(0, true);
+    }
+    else{
+      this.showAddWordText = "Show add new word";
+    }
+  }
+
+  prepareAddWord(){
+    this.wordInputs = [];
+    let wordInput1 = new WordInput("", "", false, 0);
+    let wordInput2 = new WordInput("", "", true, 1);
+    this.wordInputs.push(wordInput1);
+    this.wordInputs.push(wordInput2);
+
+    this.prepareTable();
+  }
+
+  createWordTable() : WordData[] {
+    let wordData: WordData[] = [];
+    this.category.wordConfigs.forEach(wc => {
+      wc.words.sort((a, b) => a.seat - b.seat);
+
+      let showWords: ShowWord[] = [];
+      if(this.category.mode == Mode.DICTIONARY){
+        wc.words.forEach(w => {
+          let wordToShow = new ShowWord(w.word, w.answer);
+          showWords.push(wordToShow);
+        });
+
+        showWords = showWords.sort((a, b) => Number(a.answer)- Number(b.answer));
+      }
+      else {
+        wc.words.forEach(w => {
+          let wordToShow: ShowWord;
+          if(!w.answer){
+            wordToShow = new ShowWord(w.word, w.answer);
+          }else{
+            wordToShow = new ShowWord(w.word + " (" + w.basicWord + ")", w.answer);
+          }
+          showWords.push(wordToShow);
+        });
+      }
+
+
+      let word : WordData = new WordData(wc.id, showWords, wc.comment);
+      wordData.push(word);
+    });
+    return wordData;
+  }
+
+  showEditWord(idWordConfig?: number, setToFalse?:boolean){
+    this.editWordShowActive = setToFalse ? false : !this.editWordShowActive;
+    if(this.editWordShowActive){
+      this.editWordButtonText = "Hide edit word";
+      this.prepareShowEdit(idWordConfig);
+      this.showAddWord(true);
+    }else{
+      this.editWordButtonText = "Show edit word";
+    }
+  }
+  prepareShowEdit(idWordConfig: number){
+    this.wordInputs = [];
+    let wordConfig: WordConfig = this.category.wordConfigs[this.category.wordConfigs.findIndex(wc => wc.id == idWordConfig)];
+    this.mechanism = wordConfig.mechanism;
+    this.comment = wordConfig.comment;
+
+    wordConfig.words.forEach(w => {
+      let wordInput = new WordInput(w.word, w.basicWord, w.answer, w.seat);
+      this.wordInputs.push(wordInput);
+    });
+
+  }
+
+  editWord(idWordConfig:number){
+    let counterWords = 0;
+    let counterAnswers = 0;
+    let existsBasicAnswers = true;
+    let validateForm = true;
+    this.wordInputs.forEach(wi => {
+      wi.answer ? counterAnswers+=1 : counterWords+=1;
+      if(wi.answer && wi.basicWord.length == 0){
+        existsBasicAnswers = false;
+      }
+      if(wi.word.length == 0){
+        validateForm = false;
+      }
+    });
+    if(counterWords == 0 || counterAnswers == 0){
+      this.appService.openSnackBar("There has to be at least 1 word and 1 answer!");
+      return;
+    }
+
+    if(!validateForm){
+      this.appService.openSnackBar("You need to enter each word and answer!");
+      return;
+    }
+
+    if(!existsBasicAnswers && this.category.mode == Mode.EXERCISE){
+      this.appService.openSnackBar("You need to enter basic word for each answer!");
+      return;
+    }
+
+    let index = this.category.wordConfigs.findIndex(wc => wc.id == idWordConfig);
+    let wordConfig : WordConfig = this.category.wordConfigs[index];
+    wordConfig.comment = this.comment;
+    wordConfig.mechanism = this.mechanism;
+    let words : Word[] = [];
+    this.wordInputs.forEach(wi => {
+      let word : Word = new Word(wi.word, wi.basicWord, wi.seat, true, wi.answer);
+      words.push(word);
+    });
+
+    wordConfig.words = words;
+
+    this.languageService.editWord(this.language.id, this.category.id, idWordConfig, wordConfig).subscribe(
+      data => {
+        this.category.wordConfigs.splice(index, 1);
+        this.category.wordConfigs.push(data);
+        this.showEditWord(0, true);
+        this.prepareTable();
+
+      },
+      error => {
+        this.appService.openSnackBar(error["error"]["error"]);
+      });
+  }
+
+  deleteWord(idWordConfig: number){
+    let index = this.category.wordConfigs.findIndex(wc => wc.id == idWordConfig);
+    this.category.wordConfigs.splice(index, 1);
+
+    this.languageService.deleteWord(this.language.id, this.category.id, idWordConfig, true).subscribe(
+      data => {
+        this.showEditWord(0, true);
+        this.prepareTable();
+
+      },
+      error => {
+        this.appService.openSnackBar(error["error"]["error"]);
+      });
+  }
+
+  acceptWord(idWordConfig: number){
+    let index = this.category.wordConfigs.findIndex(wc => wc.id == idWordConfig);
+    this.category.wordConfigs.splice(index, 1);
+
+    this.languageService.acceptWord(this.language.id, this.category.id, idWordConfig).subscribe(
+      data => {
+        this.showEditWord(0, true);
+        this.prepareTable();
+
+      },
+      error => {
+        this.appService.openSnackBar(error["error"]["error"]);
+      });
+  }
+
+  insertSpecialLetter(letter: string) {
+    this.elementCaretPos.value += letter;
+    this.elementCaretPos.focus();
+  }
+
+  getCaretPos(oField) {
+    this.elementCaretPos = oField;
+  }
+
+
+}

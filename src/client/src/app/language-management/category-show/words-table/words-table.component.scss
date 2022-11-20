@@ -1,0 +1,69 @@
+table {
+  width: 100%;
+}
+
+.word-detail-body {
+  overflow: hidden;
+
+}
+
+tr.word-detail-row {
+  height: 0;
+}
+
+tr.word-row:not(.word-detail-expanded):hover {
+  background: #777;
+}
+
+tr.word-row:not(.word-detail-expanded):active {
+  background: #efefef;
+}
+
+.word-row td {
+  border-bottom-width: 0;
+}
+
+.word-add-body{
+  margin-top: 10px;
+}
+
+.icons-word-add{
+  vertical-align: middle;
+  cursor: pointer;
+}
+
+.input-word-add{
+  margin-left: 3px !important;
+  margin-right: 3px !important;
+}
+
+.preview-container{
+  display: inline-flex;
+}
+
+.preview-word{
+  line-height: 50px;
+}
+
+.preview-table-mechanism{
+  border: 1px solid;
+  display: table;
+  padding: 5px;
+}
+
+.specialLetterBox{
+  border: 1px solid white;
+  margin-top: 5px;
+  padding: 5px;
+  font-size: 20px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.specialLetterText{
+  cursor: pointer;
+}
+
+.answer-text{
+  color: yellow;
+}

@@ -1,0 +1,8 @@
+<h1 mat-dialog-title>Delete language</h1>
+<div mat-dialog-content>
+  <p>Are you sure you want to delete: <b>{{data.name}}</b>?</p>
+</div>
+<div mat-dialog-actions>
+  <button mat-raised-button color="primary" (click)="onNoClick()">No</button>
+  <button mat-raised-button color="primary" class="marginMoreButton clickButton" (click)="delete()">Yes</button>
+</div>

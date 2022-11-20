@@ -1,0 +1,7 @@
+version: '3'
+services:
+  openssl_container:
+    build: .
+    container_name: openssl_container
+    volumes:
+     - ./certificate:/certificate

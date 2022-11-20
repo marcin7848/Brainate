@@ -1,0 +1,36 @@
+<div class="body-container">
+  <mat-toolbar color="primary" class="toolbar">
+    <button mat-icon-button (click)="snav.toggle()">
+      <mat-icon>menu</mat-icon>
+    </button>
+    <ng-container *ngIf="loggedAccount">
+      <p class="header-list">Hello, {{loggedAccount?.username}}</p>
+      <button class="button-header" mat-stroked-button [routerLink]="['/accounts/logout']">Logout</button>
+    </ng-container>
+    <ng-container *ngIf="!loggedAccount">
+      <button class="button-header" mat-stroked-button [routerLink]="['/accounts/register']">Register</button>
+      <button class="button-header" mat-stroked-button [routerLink]="['/accounts/login']">Login</button>
+    </ng-container>
+  </mat-toolbar>
+
+  <mat-sidenav-container class="sidenav-container">
+    <mat-sidenav #snav mode="over" fixedTopGap="40">
+      <mat-nav-list>
+        <a mat-list-item (click)="snav.toggle()" routerLink="/">Home</a>
+        <ng-container *ngIf="loggedAccount">
+          <a mat-list-item (click)="snav.toggle()" routerLink="/languages/add">Add new language</a>
+          <a *ngFor="let language of languages" mat-list-item (click)="snav.toggle()" routerLink="/languages/{{language.id}}/show">{{language.dictionaryLanguage.languageShortcut}}</a>
+        </ng-container>
+      </mat-nav-list>
+    </mat-sidenav>
+
+    <mat-sidenav-content>
+      <div class="router_clear"></div>
+      <div class="body_style_box">
+        <div class="body_box">
+          <router-outlet></router-outlet>
+        </div>
+      </div>
+    </mat-sidenav-content>
+  </mat-sidenav-container>
+</div>

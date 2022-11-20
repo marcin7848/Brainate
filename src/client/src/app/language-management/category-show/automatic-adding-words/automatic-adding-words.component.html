@@ -1,0 +1,69 @@
+<mat-card class="mat_card_box">
+  <mat-card-content>
+    <div>
+      <h2 class="mainTitle">
+        {{category?.name}} - Automatic Adding Words
+      </h2>
+    </div>
+    <div class="mainSubTitle">
+      <span>Language: {{language?.dictionaryLanguage.name}} | Mode: {{category?.mode}}
+        | Parent: {{getParentCategoryName(category)}}</span>
+    </div>
+    <mat-divider></mat-divider>
+    <ng-container *ngIf="language?.dictionaryLanguage.codeForTranslator == 'en' && category?.mode == Mode.DICTIONARY">
+      <div>
+        <mat-form-field style="width: 100%;">
+          <textarea matInput placeholder="Text to translate ({{language?.dictionaryLanguage.name}})"
+                    [(ngModel)]="text"></textarea>
+        </mat-form-field>
+      </div>
+      <div>
+        <button mat-raised-button color="primary" class="marginMoreButton"
+                (click)="translateWords()" [disabled]="submitted">Translate and add words
+        </button>
+      </div>
+    </ng-container>
+    <div>
+      <h2>Add words from other users</h2>
+      <div *ngIf="loadingWords">
+        The words are loading. Wait!
+      </div>
+      <div *ngFor="let language1 of languages; let i = index" style="border: 1px solid white;padding: 5px;background-color: #332600;">
+        <div>
+          <h3>
+            {{language1.dictionaryLanguage.name}}
+            <mat-icon class="icons-adding-words" (click)="hideWord(i, -1, -1, language1.id, 0, 0)">clear</mat-icon>
+          </h3>
+        </div>
+        <div *ngFor="let category1 of language1.categories; let j = index" style="border: 1px solid white;padding: 5px;margin-top: 10px;background-color: #334d00;">
+          <div>
+            <h4>
+              {{category1.name}}
+              <mat-icon class="icons-adding-words"(click)="hideWord(i, j, -1, language1.id, category1.id, 0)">clear</mat-icon>
+              <mat-icon class="icons-adding-words" (click)="copyWord(i, j, -1, language1.id, category1.id, 0)">check</mat-icon>
+            </h4>
+          </div>
+          <div *ngFor="let wordConfig1 of category1.wordConfigs; let k = index" style="border: 1px solid white;padding: 5px;margin-top: 10px;background-color: #5c5c3d;">
+            <div>
+              <mat-icon class="icons-adding-words"(click)="hideWord(i, j, k, language1.id, category1.id, wordConfig1.id)">clear
+              </mat-icon>
+              <mat-icon class="icons-adding-words" (click)="copyWord(i, j, k, language1.id, category1.id, wordConfig1.id)">check
+              </mat-icon>
+              <ng-container *ngFor="let word of wordConfig1.words">
+                <ng-container *ngIf="!word.answer">
+                  {{word.word}}
+                </ng-container>
+                <ng-container *ngIf="word.answer">
+                  <mat-form-field class="input-word-add">
+                    <input matInput placeholder="Answer" [value]="word.word">
+                  </mat-form-field>
+                  ({{word.basicWord}})
+                </ng-container>
+              </ng-container>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </mat-card-content>
+</mat-card>

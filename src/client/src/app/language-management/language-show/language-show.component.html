@@ -1,0 +1,74 @@
+<mat-card class="mat_card_box">
+  <mat-card-content>
+    <div>
+      <h2 class="mainTitle">
+        {{language?.dictionaryLanguage.name}}
+        <mat-icon [routerLink]="['/languages/'+language?.id+'/edit']" matTooltip="Edit language"
+                  matTooltipClass="standard-tooltip" class="standard-icon">edit
+        </mat-icon>
+        <mat-icon (click)="showDeleteLanguage()" matTooltip="Delete language"
+                  matTooltipClass="standard-tooltip" class="standard-icon">delete_forever
+        </mat-icon>
+        <mat-icon [routerLink]="['/languages/'+language?.id+'/tasksEdit']" matTooltip="Edit tasks"
+                  matTooltipClass="standard-tooltip" class="standard-icon">assignment
+        </mat-icon>
+      </h2>
+    </div>
+    <div>
+      <mat-list>
+        <mat-divider></mat-divider>
+
+        <div>
+          <button mat-raised-button color="primary" class="process-buttons"
+                  (click)="resetThisUnit()">Reset This Unit
+          </button>
+          <button mat-raised-button color="primary" class="marginMoreButton process-buttons"
+                  (click)="resetWords()">Reset words
+          </button>
+        </div>
+        <div *ngIf="!language?.started">
+          <button mat-raised-button color="primary" class="process-buttons"
+          (click)="showStartRepeating()">Start repeating
+          </button>
+        </div>
+        <ng-container *ngIf="language?.started">
+        <div>
+          <button mat-raised-button color="primary" class="process-buttons"
+                  [routerLink]="['/languages/'+language?.id+'/repeating']" >Enter repeating
+          </button>
+        </div>
+        <div>
+          <button mat-raised-button color="primary" class="process-buttons"
+          (click)="resetRepeating()">Reset repeating
+          </button>
+        </div>
+        </ng-container>
+
+
+        <ng-container *ngFor="let categorySetting of language?.categorySettings; let i = index;">
+          <mat-divider></mat-divider>
+          <mat-list-item class="tree-header">
+            <p class="tree-header-title"><b>{{categorySetting.mode}}</b></p>
+            <span class="category-settings-box">
+              <mat-slide-toggle class="category-settings-toggle next-element-settings"
+                                [(ngModel)]="categorySetting.thisUnitOn"
+                                color="primary" (change)="editCategorySetting(i)">This unit on?
+              </mat-slide-toggle>
+              <mat-form-field *ngIf="categorySetting.mode == Mode.DICTIONARY" class="select-size-settings next-element-settings">
+                <mat-label>Method</mat-label>
+                <mat-select [(ngModel)]="categorySetting.method" (selectionChange)="editCategorySetting(i)">
+                  <mat-option *ngFor="let method of methods" [value]="method.method">
+                    {{method.name}}
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+            </span>
+          </mat-list-item>
+          <mat-divider></mat-divider>
+          <app-category-tree [checklistSelection]="this.checklistSelection"
+                             [languageGetter]="this.language"></app-category-tree>
+        </ng-container>
+      </mat-list>
+    </div>
+  </mat-card-content>
+</mat-card>

@@ -1,0 +1,27 @@
+<mat-card class="mat_card_box">
+  <mat-card-content>
+    <div>
+      <h2 class="mainTitle">
+        {{category?.name}}
+        <ng-container *ngIf="!category?.defaultCategory">
+          <mat-icon (click)="showEditCategory()" matTooltip="Edit category"
+                    matTooltipClass="standard-tooltip" class="standard-icon">edit
+          </mat-icon>
+          <mat-icon (click)="showDeleteCategory()" matTooltip="Delete category"
+                    matTooltipClass="standard-tooltip" class="standard-icon">delete_forever
+          </mat-icon>
+        </ng-container>
+      </h2>
+    </div>
+    <div class="mainSubTitle">
+      <span>Language: {{language?.dictionaryLanguage.name}} | Mode: {{category?.mode}} | Parent: {{getParentCategoryName(category)}}</span>
+    </div>
+    <mat-divider></mat-divider>
+    <div>
+      <app-word-add [languageGetter]="language" [categoryGetter]="category"></app-word-add>
+    </div>
+    <div>
+      <app-words-table [languageGetter]="language" [categoryGetter]="category"></app-words-table>
+    </div>
+  </mat-card-content>
+</mat-card>

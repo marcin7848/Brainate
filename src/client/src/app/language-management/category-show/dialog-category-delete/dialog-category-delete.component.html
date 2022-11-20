@@ -1,0 +1,10 @@
+<h1 mat-dialog-title>Delete category</h1>
+<div mat-dialog-content>
+  <p>Are you sure you want to delete: <b>{{data.name}}</b>?
+    <br />
+    This will delete this category and <b>all of children this category with all words!</b></p>
+</div>
+<div mat-dialog-actions>
+  <button mat-raised-button color="primary" (click)="onNoClick()">No</button>
+  <button mat-raised-button color="primary" class="marginMoreButton clickButton" (click)="delete()">Yes</button>
+</div>

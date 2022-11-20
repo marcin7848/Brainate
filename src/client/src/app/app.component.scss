@@ -1,0 +1,55 @@
+.router_clear{
+  clear:both;
+}
+
+.body_style_box{
+  margin-top: 20px;
+  margin-bottom: 10px;
+  justify-content: center;
+  align-items: center;
+  display: flex;
+}
+
+.body_box{
+  width: 70%;
+  min-width: 1150px;
+}
+
+@media screen and (max-width: 450px) {
+  .body_box{
+    width: 95%;
+    min-width: 300px;
+  }
+}
+
+.body-container {
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
+
+.sidenav-container {
+  flex: 1;
+  margin-top: 40px;
+}
+
+.toolbar {
+  position: fixed;
+  z-index: 2;
+  height: 40px;
+}
+
+.header-list{
+  float: right;
+  padding: 0;
+  margin: 4px 10px 0;
+}
+
+.button-header {
+  float: right;
+  margin: 2px 10px 0;
+}

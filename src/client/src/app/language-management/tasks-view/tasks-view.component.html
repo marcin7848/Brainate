@@ -1,0 +1,92 @@
+<mat-card class="mat_card_box">
+  <mat-card-content>
+    <div>
+      <div style="margin-left: 15px; margin-bottom: 5px;">Your level: {{level?.level}}</div>
+      <mat-progress-spinner
+        color="primary"
+        mode="determinate"
+        class="spinner"
+        [value]="this.level?.points*100 / this.level?.pointsToNextLevel">
+      </mat-progress-spinner>
+      <div class="text-inside-spinner">{{Math.round(this.level?.points * 100 / this.level?.pointsToNextLevel)}}%</div>
+      <div style="margin-left: 20px;">{{this.level?.points}} / {{this.level?.pointsToNextLevel}}</div>
+    </div>
+  </mat-card-content>
+</mat-card>
+
+<mat-card class="mat_card_box">
+  <mat-card-content>
+    <h2>Today's tasks</h2>
+    <div>
+      <ng-container *ngFor="let language of account?.languages">
+        <ng-container *ngFor="let task of language.tasks">
+          <div [class.tasks-done]="task.done >= task.toDo">
+            {{language.dictionaryLanguage.name}} -
+            <ng-container *ngIf="task.taskMode == TaskMode.DICADD">
+              Add new dictionary words
+            </ng-container>
+            <ng-container *ngIf="task.taskMode == TaskMode.DICDO">
+              Do dictionary words
+            </ng-container>
+            <ng-container *ngIf="task.taskMode == TaskMode.EXEADD">
+              Add new exercises
+            </ng-container>
+            <ng-container *ngIf="task.taskMode == TaskMode.EXEDO">
+              Do exercises
+            </ng-container>
+            - {{task.done}} / {{task.toDo}}
+          </div>
+        </ng-container>
+      </ng-container>
+      <mat-divider></mat-divider>
+      <div style="margin-top: 10px;">
+        Points to get: {{pointsToGet}}
+      </div>
+    </div>
+  </mat-card-content>
+</mat-card>
+
+<mat-card class="mat_card_box">
+  <mat-card-content>
+    <h2>Statistics</h2>
+    <ng-container *ngFor="let language of account?.languages">
+      <div style="padding-top: 10px; padding-bottom: 10px;">
+        <div style="font-size: 16px;font-weight: bold;">
+          {{language.dictionaryLanguage.name}}
+        </div>
+        <div *ngFor="let statistic of language.statistics">
+          <ng-container *ngIf="statistic.mode == Mode.DICTIONARY">
+            <div>
+              Added dictionary words: {{statistic.added}}
+            </div>
+            <div>
+              Done dictionary words: {{statistic.done}}
+            </div>
+          </ng-container>
+          <ng-container *ngIf="statistic.mode == Mode.EXERCISE">
+            <div>
+              Added exercises: {{statistic.added}}
+            </div>
+            <div>
+              Done exercises: {{statistic.done}}
+            </div>
+          </ng-container>
+        </div>
+      </div>
+      <mat-divider></mat-divider>
+    </ng-container>
+  </mat-card-content>
+</mat-card>
+
+<mat-card class="mat_card_box">
+  <mat-card-content>
+    <h2>Other users' statistics</h2>
+    <ng-container *ngFor="let account of accounts">
+      <div [class.tasks-done]="getPointsToGet(account).done" class="other-users-statistics-box">
+        {{account.username}} (Level: {{calcLevel(account.points, 1).level}} | {{calcLevel(account.points, 1).points}} / {{calcLevel(account.points, 1).pointsToNextLevel}}) - Points to get: {{getPointsToGet(account).pointsToGet}})
+      </div>
+
+      <mat-divider></mat-divider>
+    </ng-container>
+  </mat-card-content>
+</mat-card>

@@ -1,0 +1,54 @@
+.specialLetterBox{
+  border: 1px solid white;
+  margin-top: 5px;
+  padding: 5px;
+  font-size: 20px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.specialLetterText{
+  cursor: pointer;
+}
+
+.commentBox{
+  border: 1px solid white;
+  margin-top: 10px;
+  padding: 5px;
+}
+
+.input-word{
+  margin-left: 3px !important;
+  margin-right: 3px !important;
+}
+
+.repeating-result-text-correct{
+  background-color: darkgreen;
+  padding: 4px;
+}
+
+.repeating-result-text-incorrect{
+  background-color: darkred;
+  padding: 4px;
+}
+
+.preview-table-mechanism{
+  border: 1px solid;
+  display: table;
+  padding: 5px;
+  margin-top: 7px;
+  margin-bottom: 10px;
+}
+
+.repeating-words-button{
+  margin-top: 10px;
+}
+
+.hear-again{
+  cursor: pointer;
+  margin-top: 5px;
+}
+
+.words-to-end-box{
+  margin-bottom: 10px;
+}

@@ -1,0 +1,74 @@
+@import "~@angular/material/prebuilt-themes/pink-bluegrey.css";
+@import url("https://fonts.googleapis.com/icon?family=Material+Icons");
+
+body {
+  background-color: #303030;
+  margin: 4px 4px 0 4px;
+  padding: 0;
+  color: #FFFFFF;
+}
+
+mat-icon{
+  color: white;
+}
+
+.mat_card_box{
+  margin-bottom: 10px;
+}
+
+.card-header{
+  border-bottom: 1px #000000 solid;
+}
+
+.card-title{
+  font-weight: bold;
+  font-size: 20px !important;
+}
+
+.field{
+  width: 300px;
+}
+
+.alert{
+  margin-top: 10px;
+  color: #FF0000;
+}
+
+.standardSpinner{
+  margin-top: 8px;
+  margin-left: 10px;
+  height: 5px;
+  width: 5px;
+}
+
+.cardActions{
+  display: flex;
+}
+
+.mainTitle{
+  text-align: center;
+  word-wrap: break-word;
+}
+
+.mainSubTitle{
+  text-align: center;
+  color: darkgrey;
+}
+
+.marginMoreButton{
+  margin-left: 5px !important;
+}
+
+.snackbar{
+  color: #FFFFFF;
+  background-color:rgba(0,0,0,0.2);
+  width: 300px;
+}
+
+.standard-tooltip{
+
+}
+
+.standard-icon{
+  cursor: pointer;
+}

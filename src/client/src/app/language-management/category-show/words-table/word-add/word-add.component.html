@@ -1,0 +1,325 @@
+<div class="word-add-body">
+  <button mat-raised-button color="primary" class="marginMoreButton"
+          (click)="showAddWord()">{{this.showAddWordText}}</button>
+  <button mat-raised-button color="primary" class="marginMoreButton"
+          [routerLink]="['/languages/'+this.language?.id+'/categories/'+this.category?.id+'/automatic/show']">Automatic
+    adding
+  </button>
+  <ng-container *ngIf="addWordActive">
+    <h2>Add new word</h2>
+
+    <div *ngIf="this.language?.dictionaryLanguage.specialLetters.length > 0" class="specialLetterBox">
+      <ng-container *ngFor="let specialLetter of this.language?.dictionaryLanguage.specialLetters">
+        <span class="specialLetterText"
+              (click)="insertSpecialLetter(specialLetter.letter)">{{specialLetter.letter}}</span>&nbsp;&nbsp;&nbsp;
+      </ng-container>
+    </div>
+    <div>
+      <ng-container *ngIf="category?.mode == Mode.EXERCISE">
+        <mat-form-field class="input-word-add">
+          <mat-label>Mechanism</mat-label>
+          <mat-select [(value)]="this.mechanism">
+            <mat-option [value]="Mechanism.BASIC">{{Mechanism.BASIC}}</mat-option>
+            <mat-option [value]="Mechanism.TABLE">{{Mechanism.TABLE}}</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </ng-container>
+      <mat-form-field class="input-word-add">
+        <input matInput minlength="1" maxlength="100" placeholder="Comment" [(ngModel)]="this.comment"
+               #input (click)="getCaretPos(input)" (keyup)="getCaretPos(input)">
+      </mat-form-field>
+    </div>
+    <div>
+      <ng-container *ngFor="let wordInput of this.wordInputs; let i = index">
+        <ng-container *ngIf="!wordInput.answer">
+          <mat-form-field class="input-word-add">
+            <input matInput placeholder="Word (your language)" [(ngModel)]="wordInput.word"
+                   #input (click)="getCaretPos(input)" (keyup)="getCaretPos(input)">
+          </mat-form-field>
+          <mat-icon class="icons-word-add" matTooltip="Navigate before" (click)="changeSeatInputWord(i, i-1)">
+            navigate_before
+          </mat-icon>
+          <mat-icon class="icons-word-add" matTooltip="Navigate next" (click)="changeSeatInputWord(i, i+1)">
+            navigate_next
+          </mat-icon>
+          <mat-icon class="icons-word-add" matTooltip="Remove" (click)="removeInputWord(i)">remove_circle_outline
+          </mat-icon>
+        </ng-container>
+        <ng-container *ngIf="wordInput.answer">
+          <mat-form-field class="input-word-add">
+            <input matInput placeholder="Answer (foreign language)" [(ngModel)]="wordInput.word"
+                   #input (click)="getCaretPos(input)" (keyup)="getCaretPos(input)">
+          </mat-form-field>
+          <mat-form-field class="input-word-add" *ngIf="category.mode == Mode.EXERCISE">
+            <input matInput placeholder="Basic word" [(ngModel)]="wordInput.basicWord"
+                   #input (click)="getCaretPos(input)" (keyup)="getCaretPos(input)">
+          </mat-form-field>
+          <mat-icon class="icons-word-add" matTooltip="Navigate before" (click)="changeSeatInputWord(i, i-1)">
+            navigate_before
+          </mat-icon>
+          <mat-icon class="icons-word-add" matTooltip="Navigate next" (click)="changeSeatInputWord(i, i+1)">
+            navigate_next
+          </mat-icon>
+          <mat-icon class="icons-word-add" matTooltip="Remove" (click)="removeInputWord(i)">remove_circle_outline
+          </mat-icon>
+        </ng-container>
+      </ng-container>
+      <mat-icon class="icons-word-add" matTooltip="Add next word" (click)="addNewInputWord(false)">add_circle_outline
+      </mat-icon>
+      <mat-icon class="icons-word-add" matTooltip="Add next answer" (click)="addNewInputWord(true)">blur_circular
+      </mat-icon>
+    </div>
+    <div>
+      <button mat-raised-button color="primary" class="marginMoreButton clickButton" (click)="addWord()">Add</button>
+    </div>
+    <div>
+      <h2>Preview</h2>
+      <ng-container *ngIf="category?.mode == Mode.DICTIONARY">
+        <div class="preview-container">
+          <div class="preview-word">
+            <ng-container *ngFor="let wordInput of this.wordInputs">
+              <ng-container *ngIf="!wordInput.answer">
+                {{wordInput.word}},
+              </ng-container>
+            </ng-container>
+          </div>
+          <div>
+            <ng-container *ngFor="let wordInput of this.wordInputs">
+              <ng-container *ngIf="wordInput.answer">
+                <mat-form-field class="input-word-add">
+                  <input matInput placeholder="Answer" [value]="wordInput.word">
+                </mat-form-field>
+              </ng-container>
+            </ng-container>
+          </div>
+        </div>
+      </ng-container>
+
+      <div class="preview-table-mechanism" *ngIf="this.mechanism == Mechanism.TABLE">
+        <ng-container *ngFor="let wordInput of this.wordInputs">
+          {{wordInput.basicWord}}&nbsp;&nbsp;&nbsp;
+        </ng-container>
+      </div>
+
+      <ng-container *ngIf="category?.mode == Mode.EXERCISE">
+        <div class="preview-container">
+          <div class="preview-word">
+            <ng-container *ngFor="let wordInput of this.wordInputs">
+              <ng-container *ngIf="!wordInput.answer">
+                {{wordInput.word}}
+              </ng-container>
+              <ng-container *ngIf="wordInput.answer">
+                <mat-form-field class="input-word-add">
+                  <input matInput placeholder="Answer" [value]="wordInput.word">
+                </mat-form-field>
+                <ng-container *ngIf="this.mechanism == Mechanism.BASIC">
+                  ({{wordInput.basicWord}})
+                </ng-container>
+              </ng-container>
+            </ng-container>
+          </div>
+        </div>
+      </ng-container>
+
+      <div *ngIf="this.comment">
+        {{this.comment}}
+      </div>
+    </div>
+  </ng-container>
+</div>
+
+
+<div *ngIf="this.category?.wordConfigs.length > 0">
+  <h2>Words to accept</h2>
+  <div class="mat-elevation-z8">
+    <table mat-table [dataSource]="dataSource" matSort multiTemplateDataRows>
+
+      <ng-container matColumnDef="id">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header> ID</th>
+        <td mat-cell *matCellDef="let row"> {{row.id}} </td>
+      </ng-container>
+
+      <ng-container matColumnDef="word">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header> Word </th>
+        <td mat-cell *matCellDef="let row" style="word-break: break-word;">
+          <ng-container *ngFor="let word of row.word; let i = index">
+            <ng-container *ngIf="!word.answer">
+              {{word.word}}<ng-container *ngIf="category.mode == Mode.DICTIONARY && row.word[i+1]">,</ng-container>&nbsp;
+            </ng-container>
+            <ng-container *ngIf="word.answer">
+              <span class="answer-text">{{word.word}}</span><ng-container *ngIf="category.mode == Mode.DICTIONARY && row.word[i+1]">,&nbsp;</ng-container>
+            </ng-container>
+          </ng-container>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="comment">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header> Comment</th>
+        <td mat-cell *matCellDef="let row" style="word-break: break-word;"> {{row.comment}} </td>
+      </ng-container>
+
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header> Actions</th>
+        <td mat-cell *matCellDef="let row">
+          <mat-icon class="icons-accept-word" matTooltip="Delete word" (click)="deleteWord(row.id)"
+                    click-stop-propagation>clear
+          </mat-icon>
+          <mat-icon class="icons-accept-word" matTooltip="Accept word" (click)="acceptWord(row.id)"
+                    click-stop-propagation>done
+          </mat-icon>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="expandedDetail">
+        <td mat-cell *matCellDef="let row" [attr.colspan]="displayedColumns.length">
+          <div class="word-detail-body"
+               [@detailExpand]="row == expandedElement ? 'expanded' : 'collapsed'">
+            <div>
+              <button mat-raised-button color="primary" class="marginMoreButton"
+                      (click)="showEditWord(row.id)">{{editWordButtonText}}</button>
+            </div>
+            <div *ngIf="editWordShowActive">
+              <div *ngIf="this.language?.dictionaryLanguage.specialLetters.length > 0" class="specialLetterBox">
+                <ng-container *ngFor="let specialLetter of this.language?.dictionaryLanguage.specialLetters">
+                    <span class="specialLetterText"
+                          (click)="insertSpecialLetter(specialLetter.letter)">{{specialLetter.letter}}</span>&nbsp;&nbsp;&nbsp;
+                </ng-container>
+              </div>
+
+              <div>
+                <ng-container *ngIf="category?.mode == Mode.EXERCISE">
+                  <mat-form-field class="input-word-add">
+                    <mat-label>Mechanism</mat-label>
+                    <mat-select [(value)]="this.mechanism">
+                      <mat-option [value]="Mechanism.BASIC">{{Mechanism.BASIC}}</mat-option>
+                      <mat-option [value]="Mechanism.TABLE">{{Mechanism.TABLE}}</mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </ng-container>
+                <mat-form-field class="input-word-add">
+                  <input matInput minlength="1" maxlength="100" placeholder="Comment" [(ngModel)]="this.comment"
+                         #input (click)="getCaretPos(input)" (keyup)="getCaretPos(input)">
+                </mat-form-field>
+              </div>
+              <div>
+                <ng-container *ngFor="let wordInput of this.wordInputs; let i = index">
+                  <ng-container *ngIf="!wordInput.answer">
+                    <mat-form-field class="input-word-add">
+                      <input matInput placeholder="Word (your language)" [(ngModel)]="wordInput.word"
+                             #input (click)="getCaretPos(input)" (keyup)="getCaretPos(input)">
+                    </mat-form-field>
+                    <mat-icon class="icons-word-add" matTooltip="Navigate before" (click)="changeSeatInputWord(i, i-1)">
+                      navigate_before
+                    </mat-icon>
+                    <mat-icon class="icons-word-add" matTooltip="Navigate next" (click)="changeSeatInputWord(i, i+1)">
+                      navigate_next
+                    </mat-icon>
+                    <mat-icon class="icons-word-add" matTooltip="Remove" (click)="removeInputWord(i)">
+                      remove_circle_outline
+                    </mat-icon>
+                  </ng-container>
+                  <ng-container *ngIf="wordInput.answer">
+                    <mat-form-field class="input-word-add">
+                      <input matInput placeholder="Answer (foreign language)" [(ngModel)]="wordInput.word"
+                             #input (click)="getCaretPos(input)" (keyup)="getCaretPos(input)">
+                    </mat-form-field>
+                    <mat-form-field class="input-word-add" *ngIf="category.mode == Mode.EXERCISE">
+                      <input matInput placeholder="Basic word" [(ngModel)]="wordInput.basicWord"
+                             #input (click)="getCaretPos(input)" (keyup)="getCaretPos(input)">
+                    </mat-form-field>
+                    <mat-icon class="icons-word-add" matTooltip="Navigate before" (click)="changeSeatInputWord(i, i-1)">
+                      navigate_before
+                    </mat-icon>
+                    <mat-icon class="icons-word-add" matTooltip="Navigate next" (click)="changeSeatInputWord(i, i+1)">
+                      navigate_next
+                    </mat-icon>
+                    <mat-icon class="icons-word-add" matTooltip="Remove" (click)="removeInputWord(i)">
+                      remove_circle_outline
+                    </mat-icon>
+                  </ng-container>
+                </ng-container>
+                <mat-icon class="icons-word-add" matTooltip="Add next word" (click)="addNewInputWord(false)">
+                  add_circle_outline
+                </mat-icon>
+                <mat-icon class="icons-word-add" matTooltip="Add next answer" (click)="addNewInputWord(true)">
+                  blur_circular
+                </mat-icon>
+              </div>
+              <div>
+                <button mat-raised-button color="primary" class="marginMoreButton clickButton"
+                        (click)="editWord(row.id)">Edit
+                </button>
+              </div>
+
+              <div>
+                <h2>Preview</h2>
+                <ng-container *ngIf="category?.mode == Mode.DICTIONARY">
+                  <div class="preview-container">
+                    <div class="preview-word">
+                      <ng-container *ngFor="let wordInput of this.wordInputs">
+                        <ng-container *ngIf="!wordInput.answer">
+                          {{wordInput.word}},
+                        </ng-container>
+                      </ng-container>
+                    </div>
+                    <div>
+                      <ng-container *ngFor="let wordInput of this.wordInputs">
+                        <ng-container *ngIf="wordInput.answer">
+                          <mat-form-field class="input-word-add">
+                            <input matInput placeholder="Answer" [value]="wordInput.word">
+                          </mat-form-field>
+                        </ng-container>
+                      </ng-container>
+                    </div>
+                  </div>
+                </ng-container>
+
+                <div class="preview-table-mechanism" *ngIf="this.mechanism == Mechanism.TABLE">
+                  <ng-container *ngFor="let wordInput of this.wordInputs">
+                    {{wordInput.basicWord}}&nbsp;&nbsp;&nbsp;
+                  </ng-container>
+                </div>
+
+                <ng-container *ngIf="category?.mode == Mode.EXERCISE">
+                  <div class="preview-container">
+                    <div class="preview-word">
+                      <ng-container *ngFor="let wordInput of this.wordInputs">
+                        <ng-container *ngIf="!wordInput.answer">
+                          {{wordInput.word}}
+                        </ng-container>
+                        <ng-container *ngIf="wordInput.answer">
+                          <mat-form-field class="input-word-add">
+                            <input matInput placeholder="Answer" [value]="wordInput.word">
+                          </mat-form-field>
+                          <ng-container *ngIf="this.mechanism == Mechanism.BASIC">
+                            ({{wordInput.basicWord}})
+                          </ng-container>
+                        </ng-container>
+                      </ng-container>
+                    </div>
+                  </div>
+                </ng-container>
+
+                <div *ngIf="this.comment">
+                  {{this.comment}}
+                </div>
+              </div>
+
+
+            </div>
+          </div>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"
+          class="word-row"
+          [class.word-detail-expanded]="expandedElement === row"
+          (click)="showEditWord(row.id, true); expandedElement = expandedElement === row ? null : row">
+      </tr>
+      <tr mat-row *matRowDef="let row; columns: ['expandedDetail']" class="word-detail-row"></tr>
+    </table>
+
+    <mat-paginator [pageSizeOptions]="[10, 100, 500, 1000, 10000]"></mat-paginator>
+  </div>
+</div>

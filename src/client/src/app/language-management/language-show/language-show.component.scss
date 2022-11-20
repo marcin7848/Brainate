@@ -1,0 +1,32 @@
+.category-settings-toggle{
+  vertical-align: middle;
+}
+
+.select-size-settings{
+  width: 60px;
+}
+
+.next-element-settings{
+  margin-left: 10px;
+}
+
+.category-settings-box{
+  height: auto;
+  font-size: 10px;
+}
+.tree-header{
+  height: auto;
+}
+
+:host ::ng-deep .tree-header div.mat-list-item-content{
+  display: block !important;
+}
+
+.tree-header-title{
+  margin-block-end: 3px;
+}
+
+.process-buttons{
+  margin-top: 5px;
+  margin-bottom: 5px;
+}

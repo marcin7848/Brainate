@@ -1,0 +1,21 @@
+<h1 mat-dialog-title>Edit category</h1>
+<div mat-dialog-content>
+  <mat-form-field>
+    <input matInput #nameValue minlength="1" maxlength="30" placeholder="Name" [value]="this.data.category.name" required>
+  </mat-form-field>
+  <mat-form-field>
+    <mat-label>Parent</mat-label>
+    <mat-select #parentValue [(value)]="this.data.category.idParent">
+      <mat-option [value]="0">
+        -
+      </mat-option>
+      <mat-option *ngFor="let parentCategory of this.data.possibleParent" [value]="parentCategory.id">
+        {{parentCategory.name}}
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
+</div>
+<div mat-dialog-actions>
+  <button mat-raised-button color="primary" (click)="onNoClick()">Back</button>
+  <button mat-raised-button color="primary" class="marginMoreButton clickButton" (click)="edit(nameValue.value, parentValue.value)">Edit</button>
+</div>

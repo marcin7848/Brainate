@@ -1,0 +1,7 @@
+version: '3'
+services:
+  brainatebuild_container:
+    build: .
+    container_name: brainatebuild_container
+    volumes:
+     - ./app:/app

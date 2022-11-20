@@ -1,0 +1,11 @@
+<h1 mat-dialog-title>Start repeating</h1>
+<div mat-dialog-content>
+  <p>Provide number of words to repeating:
+  <mat-form-field>
+    <input matInput minlength="1" maxlength="4" placeholder="Number of words" [(ngModel)]="this.numberOfWords" required>
+  </mat-form-field>
+</div>
+<div mat-dialog-actions>
+  <button mat-raised-button color="primary" [disabled]="this.submitted" (click)="onNoClick()">Back</button>
+  <button mat-raised-button color="primary" [disabled]="this.submitted" class="marginMoreButton clickButton" (click)="start()">Start</button>
+</div>

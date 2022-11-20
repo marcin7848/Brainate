@@ -1,0 +1,81 @@
+- instalacja javy 12
+- instalacja node js (raczej nie trzeba)
+- instalacja postgres
+- zmiana hasła postgres na "postgres"
+> su - postgres
+> psql
+> \password
+- stworzyć bazę danych "brainate"
+> CREATE DATABASE brainate;
+
+- ewentualnie wykonać insert dumpa sql z kopią zapasową bazy
+> psql -U postgres brainate < brainate.sql
+
+- dodać klucz autoryzacji translatora: GOOGLE_APPLICATION_CREDENTIALS (wgrac plik json i ustawic path)
+- stworzyć plik jar przez gradle build
+
+-wygenerować certyfikaty SSL - 3 pliki: certyfikat.crt, private.key i intermediate cartificates.crt i pobrać openssl i stworzyć plik keystore.p12 za pomocą komendy:
+openssl pkcs12 -export -in certificate.crt -inkey private.key -certfile ca_bundle.crt -out keystore.p12 -name "brainate" - plik ten wrzucić razem z .jar na serwer w tej samej lokalizacji     
+
+- wgrać skompliowany plik jar na serwer
+- uruchomić aplikację w innym oknie przez: java -Xmx2048M -jar Brainate.jar
+W innym oknie tzn:
+- zainstalować linux screen: apt-get install screen
+- stworzyć nowe onko: screen -S brainate
+- uruchomić w oknie, żeby się nie zamknęła apka
+	- wyjście z screena: Ctrl+A Ctrl+D
+	- wejście ponowne do screena: 
+		> screen -ls
+		> screen -r ID
+			
+edycja cron taska, żeby przeładowywało zadania:
+# crontab -e
+dopisać na końcu pliku i zapisać:
+0 4 * * * curl -s https://brainate.pl/api/languages/reloadTasks > /dev/null
+
+
+KOPIA BAZY DANYCH:
+- utworzyć folder brainateDatabase w /: mkdir /brainateDatabase 
+- nadać mu uprawnienia: chmod 777 brainateDatabase
+
+Komenda do ręcznej kopii:
+sudo su - postgres -c  "pg_dump brainate >> /brainateDatabase/brainateSQL.sql"
+
+Skrypt bash do kopiowania bazy danych:
+- utworzyć w katalogu / plik brainateDump: > nano brainateDump 
+Wkleić tam ten kod:
+
+#!/bin/bash
+
+dateTime=$(date +"%Y-%m-%d_%T")
+sudo su - postgres -c  "pg_dump brainate >> /brainateDatabase/brainate_$dateTime.sql"
+
+- nadać mu prawa wykonania: chmod u+x brainateDump
+- dodać do zadań cron wykonywanie kopii:
+crontab -e
+0 5 * * * /brainateDump
+
+Żeby aplikacja działała lokalnie (na serwerze w drugą stronę - gdy na serwer zmienić przed "gradle build"):
+
+account.service.ts
+zmienić: /oauth/token na //localhost:80/oauth/token
+
+app.inceptor.ts
+zmienić 2 razy: /oauth/token na //localhost:80/oauth/token
+
+proxy.conf.json
+zmienić https://localhost:443/ na http://localhost/
+oraz zmienić "secure": true na "secure": false
+
+application.properties
+odkomentować server.port=80
+zakomentować całą resztę poniżej
+
+RootConfig.java
+Zakomentować 2 metody:
+servletContainer oraz redirectConnector
+
+
+Do czyszczenia słów, gdyby zdarzyło się, że jakoś usunął się z categorywordoconfig:
+delete from words where id_wordconfig NOT IN (Select cwc.id_wordconfig FROM categorywordconfig cwc);
+delete from wordconfigs where id_wordconfig NOT IN (Select cwc.id_wordconfig FROM categorywordconfig cwc);

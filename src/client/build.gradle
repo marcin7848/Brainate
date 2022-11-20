@@ -1,0 +1,19 @@
+plugins {
+  id "com.github.node-gradle.node" version "2.2.4"
+}
+
+version '0.0.1'
+
+node {
+  version = '10.22.0'
+  npmVersion = '6.14.6'
+  download = true
+  workDir = file("${project.buildDir}/node")
+  nodeModulesDir = file("${project.projectDir}")
+}
+
+task build(type: NpmTask) {
+  args = ['run', 'build']
+}
+
+build.dependsOn(npm_install)

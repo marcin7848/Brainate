@@ -1,0 +1,140 @@
+<mat-card class="mat_card_box">
+  <mat-card-content>
+    <button mat-icon-button (click)="changeTextToSpeech()">
+      <ng-container *ngIf="textToSpeech">
+        <mat-icon>volume_up</mat-icon>
+      </ng-container>
+      <ng-container *ngIf="!textToSpeech">
+        <mat-icon>volume_off</mat-icon>
+      </ng-container>
+    </button>
+    <button mat-icon-button (click)="changeSpeechToText()">
+      <ng-container *ngIf="speechToText">
+        <mat-icon>mic</mat-icon>
+      </ng-container>
+      <ng-container *ngIf="!speechToText">
+        <mat-icon>mic_off</mat-icon>
+      </ng-container>
+    </button>
+    <div class="words-to-end-box">
+      Words to end: {{countToWordsEnd}}
+    </div>
+    <div *ngIf="this.language?.dictionaryLanguage.specialLetters.length > 0" class="specialLetterBox">
+      <ng-container *ngFor="let specialLetter of this.language?.dictionaryLanguage.specialLetters">
+        <span class="specialLetterText"
+              (click)="insertSpecialLetter(specialLetter.letter)">{{specialLetter.letter}}</span>&nbsp;&nbsp;&nbsp;
+      </ng-container>
+    </div>
+
+    <div>
+      {{this.wordConfigs[0].id}}
+    </div>
+
+    <ng-container *ngIf="!phase">
+      <ng-container *ngIf="this.wordConfigs[0]?.categories[0].mode == Mode.DICTIONARY">
+        <ng-container
+          *ngIf="Method[currentMethod] == Method.FIRSTTOSECOND || (Method[currentMethod] == Method.BOTHSIDE && this.wordConfigs[0].done == 0)">
+          <ng-container *ngFor="let word of this.wordConfigs[0].words">
+            <span *ngIf="!word.answer">{{word.word}}, </span>
+          </ng-container>
+          <ng-container *ngFor="let word of this.wordConfigs[0].words; let i = index;">
+            <mat-form-field *ngIf="word.answer" class="input-word">
+              <input matInput id="answerDIC_{{i}}" placeholder="Answer" required [autofocus]="focusInput(i)"
+                     #input (click)="getCaretPos(input); startListening()"
+                     (keyup)="getCaretPos(input); startListening()" autocomplete="off">
+            </mat-form-field>
+          </ng-container>
+        </ng-container>
+
+        <ng-container
+          *ngIf="Method[currentMethod] == Method.SECONDTOFIRST || (Method[currentMethod] == Method.BOTHSIDE && this.wordConfigs[0].done == 1)">
+          <ng-container *ngFor="let word of this.wordConfigs[0].words">
+            <span *ngIf="word.answer">{{word.word}}, </span>
+          </ng-container>
+          <ng-container *ngFor="let word of this.wordConfigs[0].words; let i = index;">
+            <mat-form-field *ngIf="!word.answer" class="input-word">
+              <input matInput id="wordDIC_{{i}}" placeholder="Answer" required [autofocus]="focusInput(i)"
+                     #input (click)="getCaretPos(input); startListening()"
+                     (keyup)="getCaretPos(input); startListening()" autocomplete="off">
+            </mat-form-field>
+          </ng-container>
+        </ng-container>
+
+      </ng-container>
+
+      <ng-container *ngIf="this.wordConfigs[0]?.categories[0].mode == Mode.EXERCISE">
+        <ng-container *ngFor="let word of this.wordConfigs[0].words; let i = index;">
+          <span *ngIf="!word.answer">{{word.word}} </span>
+          <mat-form-field *ngIf="word.answer" class="input-word">
+            <input matInput id="answerEXE_{{i}}" placeholder="Answer" required [autofocus]="focusInput(i)"
+                   #input (click)="getCaretPos(input); startListening()" (keyup)="getCaretPos(input); startListening()"
+                   autocomplete="off">
+          </mat-form-field>
+          <ng-container *ngIf="this.wordConfigs[0].mechanism == Mechanism.BASIC">
+            <span *ngIf="word.answer"> ({{word.basicWord}}) </span>
+          </ng-container>
+        </ng-container>
+
+        <div class="preview-table-mechanism" *ngIf="this.wordConfigs[0].mechanism == Mechanism.TABLE">
+          <ng-container *ngFor="let word of this.wordConfigs[0].words">
+            {{word.basicWord}}&nbsp;&nbsp;&nbsp;
+          </ng-container>
+        </div>
+      </ng-container>
+
+      <div>
+        <button mat-raised-button color="primary" (click)="checkAnswer()" class="clickButton repeating-words-button">
+          <mat-icon>add</mat-icon>
+        </button>
+      </div>
+    </ng-container>
+    <ng-container *ngIf="phase">
+      <ng-container *ngIf="this.wordConfigs[0]?.categories[0].mode == Mode.DICTIONARY">
+        <ng-container
+          *ngIf="Method[currentMethod] == Method.FIRSTTOSECOND || (Method[currentMethod] == Method.BOTHSIDE && this.wordConfigs[0].done == 0)">
+          <ng-container *ngFor="let word of this.wordConfigs[0].words">
+            <span *ngIf="!word.answer">{{word.word}}, </span>
+          </ng-container>
+          <ng-container *ngFor="let word of this.wordConfigs[0].words; let i = index;">
+            <span [class.repeating-result-text-correct]="word.correct"
+                  [class.repeating-result-text-incorrect]="!word.correct" *ngIf="word.answer">{{word.word}}, </span>
+          </ng-container>
+        </ng-container>
+
+        <ng-container
+          *ngIf="Method[currentMethod] == Method.SECONDTOFIRST || (Method[currentMethod] == Method.BOTHSIDE && this.wordConfigs[0].done == 1)">
+          <ng-container *ngFor="let word of this.wordConfigs[0].words">
+            <span *ngIf="word.answer">{{word.word}}, </span>
+          </ng-container>
+          <ng-container *ngFor="let word of this.wordConfigs[0].words; let i = index;">
+            <span [class.repeating-result-text-correct]="word.correct"
+                  [class.repeating-result-text-incorrect]="!word.correct" *ngIf="!word.answer">{{word.word}}, </span>
+          </ng-container>
+        </ng-container>
+      </ng-container>
+
+      <ng-container *ngIf="this.wordConfigs[0]?.categories[0].mode == Mode.EXERCISE">
+        <ng-container *ngFor="let word of this.wordConfigs[0].words; let i = index;">
+          <span *ngIf="!word.answer">{{word.word}} </span>
+          <span *ngIf="word.answer" [class.repeating-result-text-correct]="word.correct"
+                [class.repeating-result-text-incorrect]="!word.correct">{{word.word}} </span>
+          <span *ngIf="word.answer"> ({{word.basicWord}}) </span>
+        </ng-container>
+      </ng-container>
+
+      <div>
+        <mat-icon matTooltip="Hear again" (click)="this.readText()" class="hear-again">hearing</mat-icon>
+      </div>
+      <div>
+        <button mat-raised-button color="primary" (click)="nextWord()" class="clickButton repeating-words-button">
+          <mat-icon>add</mat-icon>
+        </button>
+      </div>
+    </ng-container>
+
+    <div *ngIf="this.wordConfigs[0]?.comment.length > 0" class="commentBox">
+      <span>{{this.wordConfigs[0].comment}}</span>
+    </div>
+
+  </mat-card-content>
+</mat-card>

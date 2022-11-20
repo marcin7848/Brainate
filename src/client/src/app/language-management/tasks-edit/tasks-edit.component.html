@@ -1,0 +1,49 @@
+<mat-card class="mat_card_box">
+  <mat-card-content>
+    <div>
+      <h2 class="mainTitle">
+        Edit tasks - {{language?.dictionaryLanguage.name}}
+      </h2>
+    </div>
+    <div>
+      <mat-list>
+        <mat-divider></mat-divider>
+        <ng-container *ngFor="let task of language?.tasks">
+          <div class="tasksBox">
+            <div>
+              <ng-container *ngIf="task.taskMode == TaskMode.DICADD">
+                Adding new dictionary words
+              </ng-container>
+              <ng-container *ngIf="task.taskMode == TaskMode.DICDO">
+                Doing dictionary words
+              </ng-container>
+              <ng-container *ngIf="task.taskMode == TaskMode.EXEADD">
+                Adding new exercises
+              </ng-container>
+              <ng-container *ngIf="task.taskMode == TaskMode.EXEDO">
+                Doing exercises
+              </ng-container>
+            </div>
+              <mat-slide-toggle class=""
+                                [(ngModel)]="task.active"
+                                color="primary">Active?
+              </mat-slide-toggle>
+              <mat-form-field class="input-tasks-edit">
+                <input matInput placeholder="Min number" [(ngModel)]="task.minNumber">
+              </mat-form-field>
+              <mat-form-field class="input-tasks-edit">
+                <input matInput placeholder="Max number" [(ngModel)]="task.maxNumber">
+              </mat-form-field>
+          </div>
+          <mat-divider></mat-divider>
+        </ng-container>
+
+        <div>
+          <button mat-raised-button color="primary" class="clickButton edit-task-button"
+                  (click)="editTasks()">Edit tasks
+          </button>
+        </div>
+      </mat-list>
+    </div>
+  </mat-card-content>
+</mat-card>
